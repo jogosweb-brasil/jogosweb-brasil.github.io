@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Merge Fusion</title>
+  <style>html,body{margin:0;height:100%;background:#000}#g{width:100%;height:100%;border:none}</style>
+</head>
+<body>
+  <!-- Embedded iframe but spoofed to same-origin -->
+  <iframe id="g" style="display:block"></iframe>
+
+  <script>
+    const hijackUrl = "https://html5.gamedistribution.com/8c128dee9cdc4ac0bad3ebdde8602d4a/?gd_sdk_referrer_url=https%3A%2F%2Fwww.y8.com%2Fgames%2Fmerge-fusion";
+
+    const f = document.getElementById("g");
+    f.src = hijackUrl;
+
+    f.onload = () => {
+      const swCode = `
+        self.addEventListener('fetch', event => {
+          const url = new URL(event.request.url);
+
+          // Spoof headers to make assets load successfully
+          const newHeaders = new Headers(event.request.headers);
+          newHeaders.set('Origin', 'https://www.y8.com');
+          newHeaders.set('Referer', 'https://www.y8.com/');
+
+          const newReq = new Request(url, {
+            method: event.request.method,
+            headers: newHeaders,
+            mode: 'cors',
+            credentials: 'include'
+          });
+
+          event.respondWith(fetch(newReq));
+        });
+
+        self.addEventListener('activate', () => self.clients.claim());
+      `;
+
+      const blob = new Blob([swCode], { type: "application/javascript" });
+      const swUrl = URL.createObjectURL(blob);
+
+      f.contentWindow.navigator.serviceWorker.register(swUrl, { scope: '/' })
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(err => console.warn("❌ SW failed", err));
+    };
+  </script>
+<footer style='text-align:center;padding:15px 0;'><custom-links>
+  <a href="https://geim-cheon-guk24.pages.dev/backrooms-among-impostor-rolling-giant.html" target="_blank" rel="noopener">Backrooms Among Impostor Rolling Giant</a>
+  <a href="https://bharat-game-zone.web.app/burger-here.html" target="_blank" rel="noopener">Burger Here</a>
+  <a href="https://muryo-gemu-tengoku.pages.dev/idle-pizza-business.html" target="_blank" rel="noopener">Idle Pizza Business</a>
+  <a href="https://muryo-gemu-tengoku.pages.dev/family-squid-challenge.html" target="_blank" rel="noopener">Family Squid Challenge</a>
+</custom-links></footer></body>
+</html>
